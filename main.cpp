@@ -52,12 +52,14 @@ int main() {
 		}
 	}
 
+	bool is_this_suit_bid[4][5] = { {false} };		//S{c, d, h, s, nt}, W{c, d, h, s, nt}, N{c, d, h, s, nt}, E{c, d, h, s, nt}
 	static int passes = 0;
 	static int trick_required = 0;
 	static int trump = 0;
 	static int bid_id = 0;
 	string dealer;
-	string LHO, dummy, RHO, declarer;
+	string declarer;
+	int dummy;
 	string highest_bid = "N/A";
 	cout << "Who is the dealer?";
 	cout << "(S:south, N:north, E:east, W:west)" << endl;
@@ -109,7 +111,10 @@ int main() {
 								bids[level_temp - 1][trump_temp - 1].disable_bids(bid_id);
 							}
 						}
-						declarer = cards[player_idx % 4][0].print_player_name();
+						if (!is_this_suit_bid[(player_idx + 2) % 4][bid_to_trump(player_bid) - 1]) {
+							declarer = cards[player_idx % 4][0].print_player_name();
+							is_this_suit_bid[player_idx % 4][bid_to_trump(player_bid) - 1] = true;
+						}
 					}
 					else {	//Redouble
 
@@ -157,6 +162,21 @@ int main() {
 			break;
 	}
 
+	switch (declarer[0]) {
+	case 'S':
+		dummy = 2;		//North
+		break;
+	case 'W':
+		dummy = 3;		//East
+		break;
+	case 'N':
+		dummy = 0;		//South
+		break;
+	case 'E':
+		dummy = 1;		//West
+		break;
+	}
+
 	int NS_trick = 0, EW_trick = 0;
 
 	int round = 1;
@@ -186,16 +206,54 @@ int main() {
 		cout << endl;
 
 		for (int player_idx = who_play_first(lead_player); player_idx < (who_play_first(lead_player) + 4); player_idx++) {
-			cout << cards[player_idx % 4][0].print_player_name() << ":" << endl;
-			for (int cards_idx = 0; cards_idx < 13; cards_idx++) {
-				cards[player_idx % 4][cards_idx].print_cards();
+			if (!((round == 1) && (player_idx == who_play_first(lead_player)))) {
+				cout << cards[dummy][0].print_player_name() << " (Dummy):" << endl;
+				if (player_idx % 4 == dummy) {
+					cout << "< ";
+				}
+				for (int cards_idx = 0; cards_idx < 13; cards_idx++) {
+					cards[dummy][cards_idx].print_cards();
+				}
+				if (player_idx % 4 == dummy) {
+					cout << ">";
+				}
+				cout << endl;
+				if (player_idx % 4 == dummy) {
+					cout << "(Dummy's Turn)" << endl;
+				}
 			}
+
+			cout << endl;
+			
+			if (player_idx % 4 == dummy) {
+				cout << cards[(dummy + 2) % 4][0].print_player_name() << " (Declarer):" << endl;
+				for (int cards_idx = 0; cards_idx < 13; cards_idx++) {
+					cards[(dummy + 2) % 4][cards_idx].print_cards();
+				}
+				cout << endl;
+			}
+			else {
+				cout << cards[player_idx % 4][0].print_player_name() << ":" << endl;
+				cout << "< ";
+				for (int cards_idx = 0; cards_idx < 13; cards_idx++) {
+					cards[player_idx % 4][cards_idx].print_cards();
+				}
+				cout << ">";
+				cout << endl;
+				if (player_idx % 4 == (dummy + 2) % 4) {
+					cout << "(Declarer's Turn)" << endl;
+				}
+				else {
+					cout << "(Defender's Turn)" << endl;
+				}
+			}
+
 			cout << endl;
 
 			string card_to_play;
 			cout << "Enter the card to play:";
 			cin >> card_to_play;
-			cout << endl;
+			cout << endl << endl;
 
 			static int suit_in_this_round = 0;
 			if (player_idx == who_play_first(lead_player)) {
@@ -206,7 +264,7 @@ int main() {
 				cout << "You must follow suit if possible!" << endl;
 				cout << "Enter the card to play:";
 				cin >> card_to_play;
-				cout << endl;
+				cout << endl << endl;
 			}
 
 			switch (player_idx % 4) {
