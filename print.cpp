@@ -1,4 +1,5 @@
 #include "Bridge.h"
+#include "Bidding.h"
 #include <iostream>
 
 using namespace std;
@@ -46,4 +47,47 @@ void POKER::print_cards() {
 	}
 
 	cout << " ";
+}
+
+void BID::print_bids(bool special, int Doubles) {
+	if (special) {
+		if (available) {
+			switch (Doubles) {
+				case 1:
+					cout << "Double";
+					break;
+				case 2:
+					cout << "Redouble";
+					break;
+			}
+		}
+		return;
+	}
+	else {
+		if (available) {
+			cout << level;
+			switch (trump) {
+			case 1:
+				cout << "C";
+				break;
+			case 2:
+				cout << "D";
+				break;
+			case 3:
+				cout << "H";
+				break;
+			case 4:
+				cout << "S";
+				break;
+			case 5:
+				cout << "NT";
+				break;
+			}
+
+			cout << " ";
+		}
+		else {
+			cout << "   ";
+		}
+	}
 }

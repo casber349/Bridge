@@ -1,10 +1,11 @@
 #include "Bridge.h"
+#include "Bidding.h"
 #include <iostream>
 
 using namespace std;
 
 int main() {
-	//initializing
+	initializing:
 	POKER cards[4][13];		//1st dimension: player name, 2nd dimension: cards no. for each players
 
 	srand(time(NULL));		//shuffling
@@ -23,6 +24,19 @@ int main() {
 		}
 	}
 
+	BID bids[7][5];
+	for (int level_temp = 1; level_temp <= 7; level_temp++) {
+		for (int trump_temp = 1; trump_temp <= 5; trump_temp++) {
+			bids[level_temp - 1][trump_temp - 1].bidding_initialize(level_temp, trump_temp, false);
+		}
+	}
+
+	BID Double;
+	Double.bidding_initialize(0, 0, true);
+
+	BID Redouble;
+	Redouble.bidding_initialize(0, 0, true);
+
 	//sorting-1
 	for (int player_idx = 0; player_idx < 4; player_idx++) {
 		for (int cards_idx = 0; cards_idx < 13; cards_idx++) {
@@ -38,16 +52,110 @@ int main() {
 		}
 	}
 
-	//game start
-	int trump;
-	cout << "Which suit do you want to choose to be trump?";
-	cout << "(1: Club, 2: Diamond, 3:Heart, 4:Spade, 5:No trump)" << endl;
-	cin >> trump;
-
-	string lead_player;
-	cout << "Which player lead in first round?";
+	static int passes = 0;
+	static int trick_required = 0;
+	static int trump = 0;
+	static int bid_id = 0;
+	string dealer;
+	string LHO, dummy, RHO, declarer;
+	string highest_bid = "N/A";
+	cout << "Who is the dealer?";
 	cout << "(S:south, N:north, E:east, W:west)" << endl;
-	cin >> lead_player;
+	cin >> dealer;
+	cout << endl;
+
+	static int bid_round = 0;
+	bool first_bid = true;
+	while (passes <= 4) {
+		for (int player_idx = who_play_first(dealer); player_idx < (who_play_first(dealer) + 4); player_idx++) {
+			cout << cards[player_idx % 4][0].print_player_name() << ":" << endl;
+			for (int cards_idx = 0; cards_idx < 13; cards_idx++) {
+				cards[player_idx % 4][cards_idx].print_cards();
+			}
+			cout << endl << endl;
+
+			for (int level_temp = 1; level_temp <= 7; level_temp++) {
+				for (int trump_temp = 1; trump_temp <= 5; trump_temp++) {
+					bids[level_temp - 1][trump_temp - 1].print_bids(false, 0);
+				}
+				cout << endl;
+			}
+			cout << "Pass ";
+			Double.print_bids(true, 1);
+			Redouble.print_bids(true, 2);
+			cout << endl << endl;
+
+			bid:
+			string player_bid;
+			cout << "Enter your bid:";
+			cin >> player_bid;
+			cout << endl;
+
+			if (player_bid != "Pass") {
+				if (player_bid != "Double") {
+					if (player_bid != "Redouble") {
+						while (bid_to_id(player_bid) <= bid_to_id(highest_bid)) {
+							cout << "Invalid bid!" << endl;
+							goto bid;
+						}
+						first_bid = false;
+						highest_bid = player_bid;
+						passes = 0;
+						trick_required = bid_to_level(player_bid) + 6;
+						trump = bid_to_trump(player_bid);
+						bid_id = bid_to_id(player_bid);
+						for (int level_temp = 1; level_temp <= 7; level_temp++) {
+							for (int trump_temp = 1; trump_temp <= 5; trump_temp++) {
+								bids[level_temp - 1][trump_temp - 1].disable_bids(bid_id);
+							}
+						}
+						declarer = cards[player_idx % 4][0].print_player_name();
+					}
+					else {	//Redouble
+
+					}
+				}
+				else {	//Double
+
+				}
+			}
+			else {	//Pass
+				passes++;
+				if (bid_round) {
+					first_bid = false;
+				}
+				if (first_bid && passes == 4) {
+					cout << "All players have passed. Redeal cards and start a new game." << endl;
+					goto initializing;
+				}
+				else if (!first_bid && passes == 3) {
+					cout << "Declarer: " << declarer;
+					cout << ", Contract: " << highest_bid;
+					cout << endl << endl;
+					goto start_to_play;
+				}
+			}
+
+		}
+		bid_round++;
+	}
+	start_to_play:
+	string lead_player;
+
+	switch (declarer[0]) {
+		case 'S':
+			lead_player = "W";
+			break;
+		case 'W':
+			lead_player = "N";
+			break;
+		case 'N':
+			lead_player = "E";
+			break;
+		case 'E':
+			lead_player = "S";
+			break;
+	}
 
 	int NS_trick = 0, EW_trick = 0;
 
@@ -211,6 +319,14 @@ int main() {
 
 	cout << "NS_trick:" << NS_trick << endl;
 	cout << "EW_trick:" << EW_trick << endl;
+	cout << endl;
+
+	if (((declarer == "South") || (declarer == "North")) && (NS_trick >= trick_required) || ((declarer == "West") || (declarer == "East")) && (EW_trick < trick_required)) {
+		cout << "North and South win!";
+	}
+	else if(((declarer == "South") || (declarer == "North")) && (NS_trick < trick_required) || ((declarer == "West") || (declarer == "East")) && (EW_trick >= trick_required)){
+		cout << "East and West win!";
+	}
 
 	return 0;
 }

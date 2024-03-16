@@ -1,4 +1,5 @@
 #include "Bridge.h"
+#include "Bidding.h"
 #include <iostream>
 
 using namespace std;

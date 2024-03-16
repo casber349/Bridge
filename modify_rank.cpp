@@ -14,9 +14,6 @@ bool POKER::promote_trump(int trump) {
 }
 
 bool POKER::demote_discard(int trump, int suit_in_this_round) {
-	if (trump == 5) {
-		return false;
-	}
 	if (suit == trump) {
 		return false;
 	}
