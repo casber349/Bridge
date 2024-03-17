@@ -31,12 +31,15 @@ int main() {
 		}
 	}
 
-	BID Double;
-	Double.bidding_initialize(0, 0, true);
+	BID Double[4];
+	for (int i = 0; i < 4; i++) {
+		Double[i].bidding_initialize(0, 0, true);
+	}
 
-	BID Redouble;
-	Redouble.bidding_initialize(0, 0, true);
-
+	BID Redouble[4];
+	for (int i = 0; i < 4; i++) {
+		Redouble[i].bidding_initialize(0, 0, true);
+	}
 	//sorting-1
 	for (int player_idx = 0; player_idx < 4; player_idx++) {
 		for (int cards_idx = 0; cards_idx < 13; cards_idx++) {
@@ -52,6 +55,10 @@ int main() {
 		}
 	}
 
+	bool doubled = false;
+	bool redoubled = false;
+	bool can_you_redouble[4] = {false};	//S, W, N, E
+	bool can_you_double[4] = {false};	//S, W, N, E
 	bool is_this_suit_bid[4][5] = { {false} };		//S{c, d, h, s, nt}, W{c, d, h, s, nt}, N{c, d, h, s, nt}, E{c, d, h, s, nt}
 	static int passes = 0;
 	static int trick_required = 0;
@@ -83,8 +90,8 @@ int main() {
 				cout << endl;
 			}
 			cout << "Pass ";
-			Double.print_bids(true, 1);
-			Redouble.print_bids(true, 2);
+			Double[player_idx % 4].print_bids(true, 1);
+			Redouble[player_idx % 4].print_bids(true, 2);
 			cout << endl << endl;
 
 			bid:
@@ -108,6 +115,8 @@ int main() {
 							cout << "Invalid bid!" << endl;
 							goto bid;
 						}
+						doubled = false;
+						redoubled = false;
 						first_bid = false;
 						highest_bid = player_bid;
 						passes = 0;
@@ -123,13 +132,36 @@ int main() {
 							declarer = cards[player_idx % 4][0].print_player_name();
 							is_this_suit_bid[player_idx % 4][bid_to_trump(player_bid) - 1] = true;
 						}
+						for (int offset = 0; offset < 4; offset++) {
+							if (offset % 2) {
+								can_you_double[(player_idx + offset) % 4] = true;
+							}
+							Double[(player_idx + offset) % 4].enable_doubles(can_you_double[(player_idx + offset) % 4]);
+						}
 					}
 					else {	//Redouble
-
+						passes = 0;
+						doubled = false;
+						redoubled = true;
+						for (int offset = 0; offset < 4; offset++) {
+							can_you_redouble[(player_idx + offset) % 4] = false;
+							Redouble[(player_idx + offset) % 4].disable_doubles();
+						}
 					}
 				}
 				else {	//Double
-
+					passes = 0;
+					doubled = true;
+					for (int offset = 0; offset < 4; offset++) {
+						if (offset % 2) {
+							can_you_redouble[(player_idx + offset) % 4] = true;
+						}
+						Redouble[(player_idx + offset) % 4].enable_doubles(can_you_redouble[(player_idx + offset) % 4]);
+					}
+					for (int offset = 0; offset < 4; offset++) {
+						can_you_double[(player_idx + offset) % 4] = false;
+						Double[(player_idx + offset) % 4].disable_doubles();
+					}
 				}
 			}
 			else {	//Pass
@@ -144,6 +176,12 @@ int main() {
 				else if (!first_bid && passes == 3) {
 					cout << "Declarer: " << declarer;
 					cout << ", Contract: " << highest_bid;
+					if (doubled) {
+						cout << " Doubled";
+					}
+					if (redoubled) {
+						cout << " Redoubled";
+					}
 					cout << endl << endl;
 					goto start_to_play;
 				}

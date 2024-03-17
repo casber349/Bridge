@@ -8,7 +8,8 @@ class BID {
 	public:
 		void bidding_initialize(int level_temp, int trump_temp, bool special);
 		void print_bids(bool special, int doubles);
-
+		void enable_doubles(bool can_you_double);
+		void disable_doubles();
 		void disable_bids(int bid_id);
 		bool bid_to_level(string player_bid);
 	private:
