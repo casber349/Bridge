@@ -1,5 +1,6 @@
 #include "Bridge.h"
 #include "Bidding.h"
+#include "score.h"
 #include <iostream>
 
 using namespace std;
@@ -72,6 +73,16 @@ int main() {
 	cout << "(S:south, N:north, E:east, W:west)" << endl;
 	cin >> dealer;
 	cout << endl;
+
+	bool NS_vulnerable;
+	bool EW_vulnerable;
+	string who_is_vulnerable;
+	cout << "Which team is vulnerable?";
+	cout << "(NS: North-South, EW: East-West, Both, none)" << endl;
+	cin >> who_is_vulnerable;
+
+	NS_vulnerable = is_NS_vulnerable(who_is_vulnerable);
+	EW_vulnerable = is_EW_vulnerable(who_is_vulnerable);
 
 	static int bid_round = 0;
 	bool first_bid = true;
@@ -443,12 +454,21 @@ int main() {
 	cout << "EW_trick:" << EW_trick << endl;
 	cout << endl;
 
-	if (((declarer == "South") || (declarer == "North")) && (NS_trick >= trick_required) || ((declarer == "West") || (declarer == "East")) && (EW_trick < trick_required)) {
-		cout << "North and South win!";
+	static int score = 0;
+	if (((declarer == "South") || (declarer == "North")) && (NS_trick >= trick_required)) {
+		score += win(trick_required, NS_trick, bid_to_trump(highest_bid), bid_to_level(highest_bid), NS_vulnerable, doubled, redoubled);
 	}
-	else if(((declarer == "South") || (declarer == "North")) && (NS_trick < trick_required) || ((declarer == "West") || (declarer == "East")) && (EW_trick >= trick_required)){
-		cout << "East and West win!";
+	else if (((declarer == "South") || (declarer == "North")) && (NS_trick < trick_required)) {
+		score += lose(trick_required, NS_trick, NS_vulnerable, doubled, redoubled);
+	}
+	
+	if (((declarer == "East") || (declarer == "West")) && (EW_trick >= trick_required)) {
+		score -= win(trick_required, EW_trick, bid_to_trump(highest_bid), bid_to_level(highest_bid), EW_vulnerable, doubled, redoubled);
+	}
+	else if (((declarer == "East") || (declarer == "West")) && (EW_trick < trick_required)) {
+		score -= lose(trick_required, EW_trick, EW_vulnerable, doubled, redoubled);
 	}
 
+	cout << "Your Score: " << score << endl;	//NS: positive, EW: negative
 	return 0;
 }
