@@ -69,17 +69,28 @@ int main() {
 	string declarer;
 	int dummy;
 	string highest_bid = "N/A";
+	Enter_dealer:
 	cout << "Who is the dealer?";
 	cout << "(S:south, N:north, E:east, W:west)" << endl;
 	cin >> dealer;
 	cout << endl;
+	if (!check_dealer(dealer)) {
+		cout << "Invalid input!" << endl;
+		goto Enter_dealer;
+	}
 
 	bool NS_vulnerable;
 	bool EW_vulnerable;
 	string who_is_vulnerable;
+	Enter_vulnerable:
 	cout << "Which team is vulnerable?";
 	cout << "(NS: North-South, EW: East-West, Both, none)" << endl;
 	cin >> who_is_vulnerable;
+	cout << endl;
+	if (!check_vulnerable(who_is_vulnerable)) {
+		cout << "Invalid input!" << endl;
+		goto Enter_vulnerable;
+	}
 
 	NS_vulnerable = is_NS_vulnerable(who_is_vulnerable);
 	EW_vulnerable = is_EW_vulnerable(who_is_vulnerable);

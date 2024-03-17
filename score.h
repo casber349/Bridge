@@ -4,6 +4,10 @@
 
 using namespace std;
 
+
+bool check_dealer(string dealer);
+bool check_vulnerable(string who_is_vulnerable);
+
 bool is_NS_vulnerable(string who_is_vulnerable);
 bool is_EW_vulnerable(string who_is_vulnerable);
 

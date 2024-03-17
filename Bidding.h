@@ -23,5 +23,4 @@ class BID {
 int bid_to_level(string player_bid);
 int bid_to_trump(string player_bid);
 int bid_to_id(string player_bid);
-
 #endif

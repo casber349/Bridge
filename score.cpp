@@ -3,6 +3,38 @@
 
 using namespace std;
 
+bool check_dealer(string dealer) {
+	if (dealer == "S") {
+		return true;
+	}
+	if (dealer == "N") {
+		return true;
+	}
+	if (dealer == "E") {
+		return true;
+	}
+	if (dealer == "W") {
+		return true;
+	}
+	return false;
+}
+
+bool check_vulnerable(string who_is_vulnerable) {
+	if (who_is_vulnerable == "NS") {
+		return true;
+	}
+	if (who_is_vulnerable == "EW") {
+		return true;
+	}
+	if (who_is_vulnerable == "Both") {
+		return true;
+	}
+	if (who_is_vulnerable == "none") {
+		return true;
+	}
+	return false;
+}
+
 bool is_NS_vulnerable(string who_is_vulnerable) {
 	if ((who_is_vulnerable == "NS") || (who_is_vulnerable == "Both")) {
 		return true;
