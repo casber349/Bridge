@@ -96,6 +96,14 @@ int main() {
 			if (player_bid != "Pass") {
 				if (player_bid != "Double") {
 					if (player_bid != "Redouble") {
+						while ((player_bid[0] < '1') || (player_bid[0] > '7')) {
+							cout << "Invalid bid!" << endl;
+							goto bid;
+						}
+						while ((player_bid[1] != 'C') && (player_bid[1] != 'D') && (player_bid[1] != 'H') && (player_bid[1] != 'S') && ((player_bid[1] != 'N') || (player_bid[2] != 'T'))) {
+							cout << "Invalid bid!" << endl;
+							goto bid;
+						}
 						while (bid_to_id(player_bid) <= bid_to_id(highest_bid)) {
 							cout << "Invalid bid!" << endl;
 							goto bid;
@@ -250,6 +258,7 @@ int main() {
 
 			cout << endl;
 
+			play_card:
 			string card_to_play;
 			cout << "Enter the card to play:";
 			cin >> card_to_play;
@@ -260,6 +269,17 @@ int main() {
 				suit_in_this_round = card_to_suit(card_to_play);
 			}
 
+			bool card_not_found = true;
+			while (card_not_found) {
+				for (int card_id = 0; card_id < 13; card_id++) {
+					if (cards[player_idx % 4][card_id].find_the_card(card_to_play)) {
+						card_not_found = false;
+						goto found_card;
+					}
+				}
+				cout << "Invalid play!" << endl;
+				goto play_card;
+			}
 			while (!((card_to_suit(card_to_play) == suit_in_this_round) || !(player_suit_table[player_idx % 4][suit_in_this_round - 1]))) {
 				cout << "You must follow suit if possible!" << endl;
 				cout << "Enter the card to play:";
@@ -267,6 +287,7 @@ int main() {
 				cout << endl << endl;
 			}
 
+			found_card:
 			switch (player_idx % 4) {
 			case 0:
 				for (int card_id = 0; card_id < 13; card_id++) {
