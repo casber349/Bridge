@@ -138,6 +138,10 @@ int main() {
 							}
 							Double[(player_idx + offset) % 4].enable_doubles(can_you_double[(player_idx + offset) % 4]);
 						}
+						for (int offset = 0; offset < 4; offset++) {
+							can_you_redouble[(player_idx + offset) % 4] = false;
+							Redouble[(player_idx + offset) % 4].disable_doubles();
+						}
 					}
 					else {	//Redouble
 						passes = 0;
@@ -307,6 +311,13 @@ int main() {
 				suit_in_this_round = card_to_suit(card_to_play);
 			}
 
+			while (!((card_to_suit(card_to_play) == suit_in_this_round) || !(player_suit_table[player_idx % 4][suit_in_this_round - 1]))) {
+				cout << "You must follow suit if possible!" << endl;
+				cout << "Enter the card to play:";
+				cin >> card_to_play;
+				cout << endl << endl;
+			}
+
 			bool card_not_found = true;
 			while (card_not_found) {
 				for (int card_id = 0; card_id < 13; card_id++) {
@@ -317,12 +328,6 @@ int main() {
 				}
 				cout << "Invalid play!" << endl;
 				goto play_card;
-			}
-			while (!((card_to_suit(card_to_play) == suit_in_this_round) || !(player_suit_table[player_idx % 4][suit_in_this_round - 1]))) {
-				cout << "You must follow suit if possible!" << endl;
-				cout << "Enter the card to play:";
-				cin >> card_to_play;
-				cout << endl << endl;
 			}
 
 			found_card:
