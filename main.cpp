@@ -166,6 +166,10 @@ int main() {
 						}
 					}
 					else {	//Redouble
+						if (!can_you_redouble[player_idx % 4]) {
+							cout << "You can't redouble now!" << endl;
+							goto bid;
+						}
 						passes = 0;
 						doubled = false;
 						redoubled = true;
@@ -176,6 +180,10 @@ int main() {
 					}
 				}
 				else {	//Double
+					if (!can_you_double[player_idx % 4]) {
+						cout << "You can't double now!" << endl;
+						goto bid;
+					}
 					passes = 0;
 					doubled = true;
 					for (int offset = 0; offset < 4; offset++) {
@@ -333,6 +341,21 @@ int main() {
 				suit_in_this_round = card_to_suit(card_to_play);
 			}
 
+			
+
+			bool card_not_found = true;
+			while (card_not_found) {
+				for (int card_id = 0; card_id < 13; card_id++) {
+					if (cards[player_idx % 4][card_id].find_the_card(card_to_play)) {
+						card_not_found = false;
+					}
+				}
+				if (card_not_found) {
+					cout << "Invalid play!" << endl;
+					goto play_card;
+				}
+			}
+
 			while (!((card_to_suit(card_to_play) == suit_in_this_round) || !(player_suit_table[player_idx % 4][suit_in_this_round - 1]))) {
 				cout << "You must follow suit if possible!" << endl;
 				cout << "Enter the card to play:";
@@ -340,19 +363,7 @@ int main() {
 				cout << endl << endl;
 			}
 
-			bool card_not_found = true;
-			while (card_not_found) {
-				for (int card_id = 0; card_id < 13; card_id++) {
-					if (cards[player_idx % 4][card_id].find_the_card(card_to_play)) {
-						card_not_found = false;
-						goto found_card;
-					}
-				}
-				cout << "Invalid play!" << endl;
-				goto play_card;
-			}
-
-			found_card:
+			//found card and no revoke
 			switch (player_idx % 4) {
 			case 0:
 				for (int card_id = 0; card_id < 13; card_id++) {
